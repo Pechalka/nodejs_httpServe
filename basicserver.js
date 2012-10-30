@@ -40,9 +40,15 @@ var dispatchToContainer = function(htserver, req, res){
 		req.basicServer.urlparsed.pathname
 		);
 	if (container !== undefined){
+
 		req.basicServer.hostMacthes = container.host;
 		req.basicServer.pathMacthes = container.path;
 		req.basicServer.container = container.container;
+
+		//2 line fix
+		req.container = container.container;
+		req.urlparsed = req.basicServer.urlparsed
+		
 		container.container.module.handle(req, res);
 	} else {
 		res.writeHead(404, { 'Content-Type' : 'text/plain' });
@@ -53,7 +59,7 @@ var dispatchToContainer = function(htserver, req, res){
 exports.createServer = function() {
 	var htserver = http.createServer(function(req, res){
 		req.basicServer = {
-			urlparsed : url.parse(req.url, true);
+			urlparsed : url.parse(req.url, true)
 		};
 		processHeaders(req, res);
 		dispatchToContainer(htserver, req, res);
@@ -65,24 +71,25 @@ exports.createServer = function() {
 		if (lookupContainer(htserver, host, path) !== undefined){
 			throw new Error('Already mapped ' + host + "/" + path)
 		}
-
+		
 		htserver.basicServer.containers.push({
 			host : host, path : path,
 			module : module, options : options
 		});
 	};
 
-	htserver.useFavIcon = function(host, paht){
+	htserver.useFavIcon = function(host, path){
 		return this.addContainer(
 			host, 
 			"/favicon.ico", 
-			require('./faviconHandler')),
+			require('./faviconHandler'),
 			{ iconPath : path}
 		);
 	};
 
 	htserver.docroot = function(host, path, rootPath){
-		return this.addContainer(host, path, require(".staticHandler"), { docroot : rootPath})
+		return this.addContainer(host, path, require("./staticHandle"), 
+			{ docroot : rootPath })
 	};
 
 	return htserver;

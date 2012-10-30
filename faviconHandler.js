@@ -1,8 +1,8 @@
-var fs = requeir('fs');
-var mime = requeir('mime');
+var fs = require('fs');
+var mime = require('mime');
 
 exports.handle = function(req, res){
-	if (res.method !== 'GET'){
+	if (req.method !== 'GET'){
 		res.writeHead(404, { 'Content-Type' : 'text/plain' });
 		res.end('invalid method ' + req.method);
 	} else if (req.basicServer.container.options.iconPath !== undefined) {
